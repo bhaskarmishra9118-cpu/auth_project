@@ -18,7 +18,7 @@ const requestLogger = (req, res, next) => {
     );
   });
 
-  next(); // 🔥 IMPORTANT
+  next(); // Most  IMPORTANT
 };
 
 module.exports = requestLogger;

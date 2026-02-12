@@ -3,7 +3,7 @@ const { getSecretFromDB } = require("./mockDb");
 
 const generateToken = async (email) => {
   try {
-    // 1️⃣ Input validation
+    // Input validation
     if (!email || typeof email !== "string") {
       throw new Error("Valid email is required");
     }
@@ -14,7 +14,7 @@ const generateToken = async (email) => {
       throw new Error("Secret key not found");
     }
 
-    // 2️⃣ Add timestamp to prevent replay attacks
+    // Add timestamp to prevent replay attacks
     const payload = `${email}:${Date.now()}`;
 
     const token = crypto

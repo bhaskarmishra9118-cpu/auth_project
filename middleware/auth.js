@@ -2,14 +2,14 @@ const jwt = require("jsonwebtoken");
 
 module.exports = function (req, res, next) {
   try {
-    // 1️⃣ Ensure secret exists (NO default fallback)
+    // NO default fallback
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       console.error("JWT_SECRET is not defined");
       return res.status(500).json({ error: "Server configuration error" });
     }
 
-    // 2️⃣ Validate Authorization header
+    //  Validate Authorization header
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -22,15 +22,15 @@ module.exports = function (req, res, next) {
       return res.status(401).json({ error: "Token missing" });
     }
 
-    // 3️⃣ Verify token with restricted algorithm
+    //  Verify token 
     const decoded = jwt.verify(token, secret, {
       algorithms: ["HS256"],
     });
 
-    // 4️⃣ Attach user to request
+    //  Attach user to request
     req.user = decoded;
 
-    // 5️⃣ Continue request
+    //  Most Important part by Continuing  request
     next();
 
   } catch (error) {

@@ -10,7 +10,7 @@ const { generateToken } = require("./utils/tokenGenerator");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Session storage (in-memory)
+// Sessions
 const loginSessions = {};
 const otpStore = {};
 
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// CHANGE 1: /auth/login endpoint
+///auth/login endpoint
 app.post("/login", (req, res) => {
   try {
     const { email, password } = req.body;
@@ -45,7 +45,7 @@ app.post("/login", (req, res) => {
       email,
       password,
       createdAt: Date.now(),
-      expiresAt: Date.now() + 2 * 60 * 1000, // 2 minutes
+      expiresAt: Date.now() + 2 * 60 * 1000, 
     };
 
     // Store OTP
