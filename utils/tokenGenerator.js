@@ -3,15 +3,30 @@ const { getSecretFromDB } = require("./mockDb");
 
 const generateToken = async (email) => {
   try {
+    // 1️⃣ Input validation
+    if (!email || typeof email !== "string") {
+      throw new Error("Valid email is required");
+    }
+
     const secret = await getSecretFromDB();
 
-    return crypto
+    if (!secret) {
+      throw new Error("Secret key not found");
+    }
+
+    // 2️⃣ Add timestamp to prevent replay attacks
+    const payload = `${email}:${Date.now()}`;
+
+    const token = crypto
       .createHmac("sha256", secret)
-      .update(email)
+      .update(payload)
       .digest("base64");
+
+    return token;
+
   } catch (error) {
-    // THE BUG: Empty catch block.
-    // Error is swallowed and undefined is returned.
+    console.error("Token generation failed:", error.message);
+    throw error; // Never swallow errors
   }
 };
 

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
@@ -26,7 +28,7 @@ app.get("/", (req, res) => {
 });
 
 // CHANGE 1: /auth/login endpoint
-app.post("/auth/login", (req, res) => {
+app.post("/login", (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -49,7 +51,7 @@ app.post("/auth/login", (req, res) => {
     // Store OTP
     otpStore[loginSessionId] = otp;
 
-    console.log(`[OTP] Session ${loginSessionId} generated`);
+console.log(`[OTP] Session ${loginSessionId} generated | OTP: ${otp}`);
 
     return res.status(200).json({
       message: "OTP sent",
@@ -66,7 +68,7 @@ app.post("/auth/login", (req, res) => {
 app.post("/auth/verify-otp", (req, res) => {
   try {
     const { loginSessionId, otp } = req.body;
-
+    
     if (!loginSessionId || !otp) {
       return res
         .status(400)
@@ -83,9 +85,10 @@ app.post("/auth/verify-otp", (req, res) => {
       return res.status(401).json({ error: "Session expired" });
     }
 
-    if (parseInt(otp) !== otpStore[loginSessionId]) {
-      return res.status(401).json({ error: "Invalid OTP" });
-    }
+if (String(otp).trim() !== String(otpStore[loginSessionId])) {
+  return res.status(401).json({ error: "Invalid OTP" });
+}
+
 
     res.cookie("session_token", loginSessionId, {
       httpOnly: true,

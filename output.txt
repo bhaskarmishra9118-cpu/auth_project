@@ -1,0 +1,152 @@
+================================================================================
+AUTHENTICATION FLOW TEST - COMPLETE OUTPUT
+================================================================================
+
+Server: http://localhost:3000
+Date: 2026-02-12
+
+================================================================================
+TASK 1: LOGIN ENDPOINT TEST
+================================================================================
+
+Command:
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test2@example.com","password":"pass456"}'
+
+PowerShell Command (Equivalent):
+$loginResponse = Invoke-RestMethod -Uri "http://localhost:3000/login" -Method Post -ContentType "application/json" -Body (@{email="test2@example.com"; password="pass456"} | ConvertTo-Json)
+
+Response Output:
+{
+    "message": "OTP sent",
+    "loginSessionId": "9rmkh8"
+}
+
+Server Console Output:
+[START] POST /login - IP: ::1
+[OTP] Session 9rmkh8 generated | OTP: 967063
+[END] POST /login -> 200 (2ms)
+
+✅ Status: 200 OK
+✅ loginSessionId: 9rmkh8
+✅ OTP Generated: 967063
+
+
+================================================================================
+TASK 2: VERIFY OTP ENDPOINT TEST
+================================================================================
+
+Command:
+curl -c cookies.txt -X POST http://localhost:3000/auth/verify-otp \
+  -H "Content-Type: application/json" \
+  -d '{"loginSessionId":"9rmkh8","otp":"967063"}'
+
+PowerShell Command (Equivalent):
+$verifyResponse = Invoke-RestMethod -Uri "http://localhost:3000/auth/verify-otp" -Method Post -ContentType "application/json" -Body (@{loginSessionId="9rmkh8"; otp=967063} | ConvertTo-Json)
+
+Response Output:
+{
+    "message": "OTP verified",
+    "sessionId": "9rmkh8"
+}
+
+Server Console Output:
+[START] POST /auth/verify-otp - IP: ::1
+[END] POST /auth/verify-otp -> 200 (9ms)
+
+✅ Status: 200 OK
+✅ OTP Verified Successfully
+✅ Session ID: 9rmkh8
+
+
+================================================================================
+TASK 3: GET TOKEN ENDPOINT TEST
+================================================================================
+
+Command:
+curl -b cookies.txt -X POST http://localhost:3000/auth/token \
+  -H "Content-Type: application/json"
+
+Equivalent using Bearer Token (from verified session):
+curl -X POST http://localhost:3000/auth/token \
+  -H "Authorization: Bearer 9rmkh8"
+
+PowerShell Command (Equivalent):
+$headers = @{"Authorization" = "Bearer 9rmkh8"}
+$tokenResponse = Invoke-RestMethod -Uri "http://localhost:3000/auth/token" -Method Post -Headers $headers
+
+Response Output:
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwic2Vzc2lvbklkIjoiQmVhcmVyIDlybWtoOCIsImlhdCI6MTc3MDkwNTE2OCwiZXhwIjoxNzcwOTA2MDY4fQ.9taZAZo0VBRqex6M8szV_j_FawPvpHifh0h8saKLh4Y",
+    "expires_in": 900
+}
+
+Server Console Output:
+[START] POST /auth/token - IP: ::1
+[END] POST /auth/token -> 200 (13ms)
+
+✅ Status: 200 OK
+✅ Access Token Generated Successfully
+✅ Token Expires In: 900 seconds (15 minutes)
+
+
+================================================================================
+TASK 4: ACCESS PROTECTED ROUTE TEST
+================================================================================
+
+Command:
+curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwic2Vzc2lvbklkIjoiQmVhcmVyIDlybWtoOCIsImlhdCI6MTc3MDkwNTE2OCwiZXhwIjoxNzcwOTA2MDY4fQ.9taZAZo0VBRqex6M8szV_j_FawPvpHifh0h8saKLh4Y" http://localhost:3000/protected
+
+PowerShell Command (Equivalent):
+$token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwic2Vzc2lvbklkIjoiQmVhcmVyIDlybWtoOCIsImlhdCI6MTc3MDkwNTE2OCwiZXhwIjoxNzcwOTA2MDY4fQ.9taZAZo0VBRqex6M8szV_j_FawPvpHifh0h8saKLh4Y"
+$headers = @{"Authorization" = "Bearer $token"}
+$protectedResponse = Invoke-RestMethod -Uri "http://localhost:3000/protected" -Method Get -Headers $headers
+
+Response Output:
+{
+    "message": "Access granted",
+    "user": {
+        "email": "test2@example.com",
+        "sessionId": "Bearer 9rmkh8",
+        "iat": 1770905168,
+        "exp": 1770906068
+    },
+    "success_flag": "FLAG-dGVzdDJAZXhhbXBsZS5jb21fQ09NUExFVEVEX0FTU0lHTk1FTlQ="
+}
+
+Server Console Output:
+[START] GET /protected - IP: ::1
+[END] GET /protected -> 200 (7ms)
+
+✅ Status: 200 OK
+✅ Access Granted Successfully
+✅ User Email: test2@example.com
+✅ SUCCESS FLAG: FLAG-dGVzdDJAZXhhbXBsZS5jb21fQ09NUExFVEVEX0FTU0lHTk1FTlQ=
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+✅ TASK 1 (Login): PASSED
+   - Received loginSessionId: 9rmkh8
+   - OTP Generated: 967063
+
+✅ TASK 2 (Verify OTP): PASSED
+   - OTP verified successfully
+   - Session confirmed
+
+✅ TASK 3 (Get Token): PASSED
+   - JWT Access Token generated successfully
+   - Token expires in 900 seconds
+
+✅ TASK 4 (Protected Route): PASSED
+   - Accessed protected route with valid token
+   - User information retrieved
+   - SUCCESS FLAG OBTAINED: FLAG-dGVzdDJAZXhhbXBsZS5jb21fQ09NUExFVEVEX0FTU0lHTk1FTlQ=
+
+================================================================================
+COMPLETE AUTHENTICATION FLOW SUCCESSFUL
+================================================================================
+All 4 test endpoints working correctly ✅

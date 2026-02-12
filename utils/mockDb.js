@@ -1,13 +1,19 @@
-const getSecretFromDB = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 120));
+let cachedSecret = null;
 
-  if (!process.env.APPLICATION_SECRET) {
-    throw new Error(
-      "Mock DB error: missing APPLICATION_SECRET env var for token generation."
-    );
+const getSecretFromDB = async () => {
+  if (cachedSecret) {
+    return cachedSecret;
   }
 
-  return process.env.APPLICATION_SECRET;
+  const secret = process.env.APPLICATION_SECRET;
+
+  if (!secret) {
+    console.error("APPLICATION_SECRET is not defined");
+    throw new Error("Server configuration error");
+  }
+
+  cachedSecret = secret; // Cache it
+  return secret;
 };
 
 module.exports = { getSecretFromDB };
